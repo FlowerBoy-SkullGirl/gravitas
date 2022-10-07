@@ -1,1 +1,7 @@
-Deprecated directories have been moved to their own repository
+Gravitas!
+
+A program that calculates the movements of masses in 3-dimensional space based on acceleration due to gravity and then renders them using OpenGL.
+
+There are currently no command-line arguments or options. Simply execute the binary.
+
+Rotation is currently only taken into account about the z-axis

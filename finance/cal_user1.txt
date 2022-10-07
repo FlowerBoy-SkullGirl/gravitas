@@ -1,2 +1,0 @@
-income_1=
-expense_1=

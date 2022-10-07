@@ -1,4 +1,0 @@
-current_balance=143.67
-monthly_expense=
-monthly_income=
-last_visit_date=7122021

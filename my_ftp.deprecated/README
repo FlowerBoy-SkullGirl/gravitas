@@ -1,5 +1,0 @@
-Server: requires no args
-Client: command server-ipv4 /path/to/file
-	pathname will not be preserved once sent over network
-
-Roughly 1.5 minutes per GB

@@ -1,4 +1,0 @@
-Todo: Consider making schedule a vector containing POINTERS to appts so that we are not storing multiple identical appointment objects in multiple other objects
-Todo: Employees HAVE a schedule, but....schedules also have associated people? How to ensure appointments on the main schedule include the employee and client information....?
-	Option: Store people id's in the appt itself, test individual conflicts in appts
-	Option: 

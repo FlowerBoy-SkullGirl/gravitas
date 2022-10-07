@@ -1,5 +1,0 @@
-/home/damean/c-stuff/Appointr/build-Appointr-Desktop-Release/CMakeFiles/Appointr.dir
-/home/damean/c-stuff/Appointr/build-Appointr-Desktop-Release/CMakeFiles/edit_cache.dir
-/home/damean/c-stuff/Appointr/build-Appointr-Desktop-Release/CMakeFiles/rebuild_cache.dir
-/home/damean/c-stuff/Appointr/build-Appointr-Desktop-Release/CMakeFiles/Appointr_autogen_timestamp_deps.dir
-/home/damean/c-stuff/Appointr/build-Appointr-Desktop-Release/CMakeFiles/Appointr_autogen.dir
