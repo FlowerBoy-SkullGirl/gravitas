@@ -1,0 +1,122 @@
+vector_3 struct:
+	A struct meant to represent a three-dimensional vector in a cartesian coordianate system.
+	
+	Variables that deal with magnitude:
+	-double magnitude
+		Represents the "size" of the vector. For example, the measured speed of an object.
+	-double x_comp
+		The x component of the vector. This is the found by the ratio of magnitude in the vector that can be measured from 0 on the x axis. Example: a vector of 3m/s magnitude that is pi/2 radians as measured from the x axis in relation to the y axis would have an x component of 3*cos(pi/2)
+	-double y_comp
+		The y component of the vector. This is the found by the ratio of magnitude in the vector that can be measured from 0 on the x axis. Example: a vector of 3m/s magnitude that is pi/2 radians as measured from the x axis in relation to the y axis would have an z component of 3*sin(pi/2)
+	-double z_comp
+		The z component of the vector. This is the found by the ratio of magnitude in the vector that can be measured from 0 on the z axis. Example: a vector of 3m/s magnitude that is pi/2 radians as measured from the x axis in relation to the z axis would have an z component of 3*sin(pi/2)
+
+	Variables that deal with direction:
+	-double alpha
+		The angle measured between the x-component and z-component of a given vector in radians
+	-double beta
+		The angle measured between the y-component and z-component of a given vector in radians
+	-double gamma
+		The angle measured between the x-component and y-component of a given vector in radians
+
+Functions for vector_3:
+double hypot_3d(struct massive_object mo1, struct massive_object mo2)
+	Finds the radius in m between two masses from their centers. 
+	Parameters:
+		mo1: A copy of the first mass that the measurement will be taken from
+		mo2: A copy of the second mass that the measurement will be taken from
+	Function useage:
+		Uses the pythagorean theorom to find the distance of first the x-y components and then the resulting xy and z components.
+	Return value:
+		A double that is the radius in m between the two masses.
+
+void component_3d(struct vector_3 *vect)
+	This function is deprecated in favour of component_3d_alt() below. Please avoid useage.
+
+void component_3d_alt(struct vector_3 *vect)
+	Given a magnitude and relevant angles of a vector, finds the respective x, y, and z components of said vector.
+	Parameters:
+		vect: A pointer to a vector_3 that has a magnitude and alpha, beta, and gamma measurement(even if these measurements are 0 radians)
+	Return value:
+		Void. All values are assigned to the vector_3's x_comp, y_comp, and z_comp variables.
+
+void find_angle_vector(struct vector_3 *dest, struct massive_object mo1, struct massive_object mo2)
+	Assigns to a vector alpha, beta, and gamma measurements given coordinates for two masses.
+	Parameters:
+		dest: the vector which these values are to be assigned to. This should be a vector that represents the resulting instantaneous velocity of a mass mo1 or mo2 due to its gravitational acceleration towards a mass mo2 or mo1.
+		mo1/mo2: One of the masses from which the angle is measured. The order of masses is arbitrary.
+	Function useage:
+		Uses the difference in distance between the masses on each axis to find the angles at which the are positioned and assigns these values to the vector_3.
+	Return value:
+		Void. All values are assigned to the vector_3's alpha, beta, and gamma variables in radians.
+
+
+massive_object struct:
+	A struct that represents the qualities of any mass that is meant to move in a 3d space.
+
+	-double mass
+		The quantity of matter in an object. In gravitas, the value should be in kilograms.
+	-struct vector_3 vect
+		See explanation for vector_3 above. This is the instantaneous velocity of the mass in m/s.
+	-double loc_x
+		An x coordinate for the mass. Origin may be arbitrary. Distance is measured in meters in gravitas.
+	-double loc_y
+		A y coordinate for the mass. Origin may be arbitrary. Distance is measured in meters in gravitas.
+	-double loc_z
+		A z coordinate for the mass. Origin may be arbitrary. Distance is measured in meters in gravitas.
+	-double radius
+		The measurement in meters from the center of a mass to its surface.
+	-double rotation
+		A measurement in radians/sec about the z-axis. Future variables may be added to represent the x and y rotation.
+	-double rotation_cur
+		A variable to track the current orientation of an object in radians. This is used in rendering the object to correctly display it's vertices in conjunction with its radius.
+
+Functions for massive_object:
+double force_gravity(struct massive_object mo1, struct massive_object mo2)
+	Finds the force of gravity between two masses in Newtons.
+	Parameters:
+		mo1/mo2: One of the masses which the force of gravity is being measured between. The order is arbitrary.
+	Function useage:
+		Calls the hypot_3d() function to find the distance between each mass. Each mass must have an assigned mass variable in kg.
+	Return value:
+		The force of gravity between the two masses as measured in Newtons(kg*m/s^2) by the formula G(gravitational constant)*(m1*m2)/(r^2)
+
+double acceleration_due_to_gravity(struct massive_object mo1, struct massive_object mo2)
+	Finds the acceleration of mass given its attraction to another mass
+	Parameters: 
+		mo1/mo2: The masses which the attraction is being measured between. mo1 is the mass that the acceleration is being calculated for. The order is NOT arbitrary, as deriving the acceleration given a force is proportional to mass. mo2 is the other mass, whose acceleration will not be calculated.
+	Function useage:
+		Calls the force_gravity() function and divides its returned value by the mass of the object mo1.
+	Return value:
+		The acceleration of mo1 in m/s^2
+
+
+mass_list struct:
+	A very basic linked list for storing massive objects.
+	-struct massive_object m_obj
+		The data for the list. See massive_object above.
+	-struct mass_list *next
+		Points to the next node in the list
+
+Functions for mass_list:
+struct mass_list *new_node()
+	Takes no arguments and allocates memory for a new node in the list. Returns a pointer to this newly allocated node.
+
+struct mass_list *new_massive_object(struct mass_list *root, double d_mass)
+	Parameters:
+		root: will be a pointer to the mass_list where the new object will be inserted.
+		d_mass: the mass of the object that is being added to the list. A mass of 0 will be overwritten by the next call to this function because it is assumed that a massless object will not have properties such as: mass, radius, rotation, etc. Gravitas is only meant to deal with Newtonian physics and basic understandings of masses.
+	Function useage:
+		Recursively checks the root node and the pointer to the next node until one of two conditions are met: 1. the current node has an uninitialized mass(mass is 0 kg) 2. the next node is null. In the first case, the massive object is initialized with the d_mass parameter value, and in the latter case, the new_node() function described above is called, followed by a recursive call to this function to satisfy condition 1.
+	Return value:
+		The pointer to the new node that has been created.
+
+struct mass_list *remove_massive_object(struct mass_list *root, int index)
+	Parameters:
+		root: will be a pointer to first entry in the mass_list where the indexed object will be removed.
+		index: the number of the the object to be removed starting at 1 and being incremented by 1 for every next pointer that precedes it.
+	Function useage:
+		Will free the memory used by the node to be removed and change the pointer for the preceding node to point to the node that is at index + 1. 
+	Return value:
+		A pointer to the root of the structure.
+
