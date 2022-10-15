@@ -170,11 +170,9 @@ void gravity_list_iterate(struct mass_list *root, int index)
 		
 }
 
-float *genVertices(struct massive_object mo)
+float *genVertices(struct massive_object mo, float *vert_buff)
 {
-	//24 float values 3 for each 8 vertices
-	float *vertices = (float *) malloc(sizeof(float)*NUM_VERTICES_PER);
-	float *vp = vertices;
+	float *vp = vert_buff;
 	int scale_up = SCALE_UP;
 	double cos_alongz = cos(mo.rotation_cur);
 	double sin_alongz = sin(mo.rotation_cur);
@@ -195,8 +193,7 @@ float *genVertices(struct massive_object mo)
 	double local_ym = scale_ymrad - scale_y;
 	double local_z = 0.0;
 	//least x, neutral y, neutral z
-	*vertices = (float) scale_x/*mrad*/ + (local_xm * cos_alongz) - (sin_alongz * 0);
-	vp++;
+	*vp++ = (float) scale_x/*mrad*/ + (local_xm * cos_alongz) - (sin_alongz * 0);
 	*(vp++) = (float) scale_y + (0 * cos_alongz) + (sin_alongz * local_xm);
 	*(vp++) = (float) scale_z; 
 	//least y
@@ -220,7 +217,7 @@ float *genVertices(struct massive_object mo)
 	*(vp++) = (float) scale_y;
 	*(vp++) = (float) scale_zmrad; 
 	
-	return vertices;
+	return vert_buff;
 }
 
 //Simulation setup
@@ -378,7 +375,8 @@ int main()
 	cp->m_obj.vect.z_comp = 0.0;
 	struct mass_list *marsp = cp;
 	
-	float *drawMass;
+	//24 float values 3 for each 8 vertices
+	float *drawMass = (float *) malloc(sizeof(float)*NUM_VERTICES_PER);
 	
 	//A reference for size of drawMass and for layout of indices
 	float testCoords[] = {
@@ -444,7 +442,7 @@ int main()
 		for (cp = root; cp != nullptr; cp = cp->next){
 			//Iterate through each object and get new vertex coordinates
 			gravity_list_iterate(root, i);
-			drawMass = genVertices(cp->m_obj);
+			drawMass = genVertices(cp->m_obj, drawMass);
 			i++;
 			
 			//Pass new vertex values into buffer
