@@ -193,7 +193,7 @@ float *genVertices(struct massive_object mo, float *vert_buff)
 	double local_ym = scale_ymrad - scale_y;
 	double local_z = 0.0;
 	//least x, neutral y, neutral z
-	*vp++ = (float) scale_x/*mrad*/ + (local_xm * cos_alongz) - (sin_alongz * 0);
+	*(vp++) = (float) scale_x/*mrad*/ + (local_xm * cos_alongz) - (sin_alongz * 0);
 	*(vp++) = (float) scale_y + (0 * cos_alongz) + (sin_alongz * local_xm);
 	*(vp++) = (float) scale_z; 
 	//least y
@@ -461,9 +461,6 @@ int main()
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 
-			//Don't do this until drawing is done
-			//Removing this causes huge memory leak
-			free(drawMass);
 		}
 		//Change the location of each object based on data from their vectors
 		for (cp = root; cp != nullptr; cp = cp->next)
@@ -471,6 +468,8 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
+	//Don't do this until drawing is done
+	free(drawMass);
 
 	glfwTerminate();
 
