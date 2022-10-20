@@ -170,6 +170,76 @@ void gravity_list_iterate(struct mass_list *root, int index)
 		
 }
 
+//Takes a reference set of vertices and scales them based on mo's radius
+float *scaleLocalVertices(struct massive_object mo, float *referenceV, float *vert_buff)
+{
+	float *vert_p = vert_buff;
+	float *reference_p = referenceV;
+	//x,y,z
+	//left
+	*(vert_p++) = *(reference_p++) * mo.radius;
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++);
+	//bottom
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++) * mo.radius;
+	*(vert_p++) = *(reference_p++);
+	//top
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++) * mo.radius;
+	*(vert_p++) = *(reference_p++);
+	//right
+	*(vert_p++) = *(reference_p++) * mo.radius;
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++);
+	//front
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++) * mo.radius;
+	//back
+	*(vert_p++) = *(reference_p++);
+	*(vert_p++) = *(reference_p++);
+	//add increment operator if more vertices are added later
+	*(vert_p) = *(reference_p) * mo.radius;
+
+	return vert_buff;
+}
+
+//Takes local space coordinates and moves them to the world space
+float *localVerticesToWorld(struct massive_object mo, float *vertices)
+{
+	float *vp = vertices;
+	//A for loop would be fine here, but be wary of changing number of vertices
+	//left
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+	//bottom
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+	//top
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+	//right
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+	//front
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+	//back
+	*(vp++) += mo.loc_x;
+	*(vp++) += mo.loc_y;
+	*(vp++) += mo.loc_z;
+
+	return vertices;
+}
+
+//Another function to handle rotation will be necessary once genVertices is replaced
+
 float *genVertices(struct massive_object mo, float *vert_buff)
 {
 	float *vp = vert_buff;
@@ -379,14 +449,13 @@ int main()
 	float *drawMass = (float *) malloc(sizeof(float)*NUM_VERTICES_PER);
 	
 	//A reference for size of drawMass and for layout of indices
-	float testCoords[] = {
-		-0.6f, 0.0f, 0.0f,
-		0.0f, -0.6f, 0.0f,
-		0.0f, 0.6f, 0.0f,
-		0.6f, 0.0f, 0.0f,
-		0.0f, 0.0f, 0.6f,
-		0.0f, 0.0f, -0.6f
-
+	float referenceVertices[] = {
+		-1.0f, 0.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f,
+		0.0f, 0.0f, -1.0f
 	};
 
 	//To create a double pyramid shape
@@ -446,7 +515,7 @@ int main()
 			i++;
 			
 			//Pass new vertex values into buffer
-			glBufferData(GL_ARRAY_BUFFER, sizeof(testCoords), drawMass, GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(referenceVertices), drawMass, GL_DYNAMIC_DRAW);
 			//can retrieve time
 			//glfwGetTime();
 			processInput(window);
