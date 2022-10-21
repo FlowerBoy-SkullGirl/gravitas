@@ -36,6 +36,7 @@
 #define R_MARS 3.389e6
 #define R_JUPITER 6.991e7
 #define NUM_VERTICES_PER 18
+#define NUM_AXIS 3
 #define WIDTH 1000
 #define HEIGHT 1000
 #define SCALE (DISTANCE_JS*1.05)
@@ -170,6 +171,14 @@ void gravity_list_iterate(struct mass_list *root, int index)
 		
 }
 
+/* 
+ * IMPORTANT FUTURE NOTES: 
+ * The vertex shader can actually calculate these transformations for us
+ * if we pass the matrix we are using rather than running these calculations on cpu
+ * This will be important for future versions, but currently we will simply do scaling and
+ * translation inside these functions. Instead of altering the vert_buff and returning a pointer to it
+ * we should return a new float *matrix_buffer that contains the address of our transform
+ */
 //Takes a reference set of vertices and scales them based on mo's radius
 float *scaleLocalVertices(struct massive_object mo, float *referenceV, float *vert_buff)
 {
@@ -238,7 +247,30 @@ float *localVerticesToWorld(struct massive_object mo, float *vertices)
 	return vertices;
 }
 
-//Another function to handle rotation will be necessary once genVertices is replaced
+//Take world space coordinates(or local) and rotate them according to mo.rotation_cur along the z-axis using a transformation matrix
+float *rotateVertices(struct massive_object mo, float *vertices)
+{
+	float *vp = vertices;
+	double cos_alongz = cos(mo.rotation_cur);
+	double sin_alongz = sin(mo.rotation_cur);
+	//Store value of cos and sin for each vertex, overwritten each loop iteration
+	float cosx = 0.0f;
+	float sinx = 0.0f;
+	float cosy = 0.0f;
+	float siny = 0.0f;
+
+	for (int i = 0; i < NUM_VERTICES_PER; i+= NUM_AXIS){
+		//Calculate before any values are changed
+		//X is expected at i'th position, and y at one further position, z is irrelevant in the z-axis rotation
+		cosx = *(vp+i) * cos_alongz;
+		sinx = *(vp+i) * sin_alongz;
+		cosy = *(vp+i+1) * cos_alongz;
+		siny = *(vp+i+1) * sin_alongz;
+
+		*(vp+i) = cosx - siny;
+		*(vp+i+1) = sinx + cosy;
+	}
+}
 
 float *genVertices(struct massive_object mo, float *vert_buff)
 {
