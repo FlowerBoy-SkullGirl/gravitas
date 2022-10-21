@@ -39,8 +39,9 @@
 #define NUM_AXIS 3
 #define WIDTH 1000
 #define HEIGHT 1000
-#define SCALE (DISTANCE_JS*1.05)
+#define SCALE (DISTANCE_JS*1.055)
 #define SCALE_UP 200
+#define SCALE_UP_SUN 25
 #define ROT_EARTH 7.272e-5 
 #define ROT_SUN 2.972e-6 
 #define ROT_MOON (ROT_EARTH * 3.385e-2) 
@@ -273,11 +274,46 @@ float *rotateVertices(struct massive_object mo, float *vertices)
 	return vertices;
 }
 
+//Scales the worldview down into camera space
+float *viewTransform(float *vert)
+{
+	float *vp = vert;
+	for (int i = 0; i < NUM_VERTICES_PER; i++){
+		*(vp+i) /= SCALE;
+	}
+	return vert;
+}
+
+//Makes the planets visible in comparison to the sun
+//This is a dirty fix, replace later
+float *scalePlanets(float *vert)
+{
+	float *vp = vert;
+	for (int i = 0; i < NUM_VERTICES_PER; i++){
+		*(vp+i) *= SCALE_UP;
+	}
+	return vert;
+}
+
+float *scaleSun(float *vert)
+{
+	float *vp = vert;
+	for (int i = 0; i < NUM_VERTICES_PER; i++){
+		*(vp+i) *= SCALE_UP_SUN;
+	}
+	return vert;
+}
+
 float *genVertices(struct massive_object mo, float *vert_buff, float *referenceLocal)
 {
 	vert_buff = scaleLocalVertices(mo, referenceLocal, vert_buff);
-	vert_buff = localVerticesToWorld(mo, vert_buff);
 	vert_buff = rotateVertices(mo, vert_buff);
+	if (mo.radius != R_SUN)
+		vert_buff = scalePlanets(vert_buff);
+	else
+		vert_buff = scaleSun(vert_buff);
+	vert_buff = localVerticesToWorld(mo, vert_buff);
+	vert_buff = viewTransform(vert_buff);
 
 	return vert_buff;
 }
