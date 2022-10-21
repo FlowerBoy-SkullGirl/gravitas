@@ -270,55 +270,15 @@ float *rotateVertices(struct massive_object mo, float *vertices)
 		*(vp+i) = cosx - siny;
 		*(vp+i+1) = sinx + cosy;
 	}
+	return vertices;
 }
 
-float *genVertices(struct massive_object mo, float *vert_buff)
+float *genVertices(struct massive_object mo, float *vert_buff, float *referenceLocal)
 {
-	float *vp = vert_buff;
-	int scale_up = SCALE_UP;
-	double cos_alongz = cos(mo.rotation_cur);
-	double sin_alongz = sin(mo.rotation_cur);
-	if (mo.radius == R_SUN)
-		scale_up = 25;
-	double scale_xprad = (mo.loc_x + (mo.radius * scale_up)) / SCALE;
-	double scale_xmrad = (mo.loc_x - (mo.radius * scale_up)) / SCALE;
-	double scale_yprad = (mo.loc_y + (mo.radius * scale_up)) / SCALE;
-	double scale_ymrad = (mo.loc_y - (mo.radius * scale_up)) / SCALE;
-	double scale_zprad = (mo.loc_z + (mo.radius * scale_up)) / SCALE;
-	double scale_zmrad = (mo.loc_z - (mo.radius * scale_up)) / SCALE;
-	double scale_x = mo.loc_x / SCALE;
-	double scale_y = mo.loc_y / SCALE;
-	double scale_z = mo.loc_z / SCALE;
-	double local_x = scale_xprad - scale_x;
-	double local_xm = scale_xmrad - scale_x;
-	double local_y = scale_yprad - scale_y;
-	double local_ym = scale_ymrad - scale_y;
-	double local_z = 0.0;
-	//least x, neutral y, neutral z
-	*(vp++) = (float) scale_x/*mrad*/ + (local_xm * cos_alongz) - (sin_alongz * 0);
-	*(vp++) = (float) scale_y + (0 * cos_alongz) + (sin_alongz * local_xm);
-	*(vp++) = (float) scale_z; 
-	//least y
-	*(vp++) = (float) scale_x + (0 * cos_alongz) - (sin_alongz * local_ym);
-	*(vp++) = (float) scale_y/*mrad*/ + (local_ym * cos_alongz) + (sin_alongz * 0);
-	*(vp++) = (float) scale_z;
-	//most y
-	*(vp++) = (float) scale_x + (0 * cos_alongz) - (sin_alongz * local_y);
-	*(vp++) = (float) scale_y/*prad*/ + (local_y * cos_alongz) + (sin_alongz * 0);
-	*(vp++) = (float) scale_z;
-	//most x
-	*(vp++) = (float) scale_x/*prad*/ + (local_x * cos_alongz) - (sin_alongz * 0);
-	*(vp++) = (float) scale_y + (0 * cos_alongz) + (sin_alongz * local_x);
-	*(vp++) = (float) scale_z;
-	//most z
-	*(vp++) = (float) scale_x;
-	*(vp++) = (float) scale_y;
-	*(vp++) = (float) scale_zprad; 
-	//least z
-	*(vp++) = (float) scale_x;
-	*(vp++) = (float) scale_y;
-	*(vp++) = (float) scale_zmrad; 
-	
+	vert_buff = scaleLocalVertices(mo, referenceLocal, vert_buff);
+	vert_buff = localVerticesToWorld(mo, vert_buff);
+	vert_buff = rotateVertices(mo, vert_buff);
+
 	return vert_buff;
 }
 
@@ -543,7 +503,7 @@ int main()
 		for (cp = root; cp != nullptr; cp = cp->next){
 			//Iterate through each object and get new vertex coordinates
 			gravity_list_iterate(root, i);
-			drawMass = genVertices(cp->m_obj, drawMass);
+			drawMass = genVertices(cp->m_obj, drawMass, referenceVertices);
 			i++;
 			
 			//Pass new vertex values into buffer
