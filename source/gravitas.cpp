@@ -179,6 +179,10 @@ void gravity_list_iterate(struct mass_list *root, int index)
  * This will be important for future versions, but currently we will simply do scaling and
  * translation inside these functions. Instead of altering the vert_buff and returning a pointer to it
  * we should return a new float *matrix_buffer that contains the address of our transform
+ * Note, to pass this job to the shader, calculate and pass only a scalar matrix, eg (mo.radius, mo.radius, mo.radius) and allow the shader
+ * to multiply the remaining values. Below, multiplications are excluded because the value is 0 and it would not matter.
+ * If we modify massive_object to include a float * pointing to its vertices, we can perform this calculation only once on CPU and not need
+ * to pass this to the shader.
  */
 //Takes a reference set of vertices and scales them based on mo's radius
 float *scaleLocalVertices(struct massive_object mo, float *referenceV, float *vert_buff)
@@ -249,6 +253,10 @@ float *localVerticesToWorld(struct massive_object mo, float *vertices)
 }
 
 //Take world space coordinates(or local) and rotate them according to mo.rotation_cur along the z-axis using a transformation matrix
+/*
+ * Note: if passing this job to the shader, consider calculating the cos and sin values first, then passing the resulting matrix to
+ * the shader to perform the final matrix calculation.
+ */
 float *rotateVertices(struct massive_object mo, float *vertices)
 {
 	float *vp = vertices;
