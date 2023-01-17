@@ -66,10 +66,9 @@ const char *fragmentShaderSource = "#version 330 core\n"
 "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\0";
 
+//receives args from glfwSetFramebufferSizeCallback for screen coords
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
 
@@ -358,9 +357,6 @@ int main()
 	return 1;
 	}
 
-	glViewport(0,0,WIDTH,HEIGHT);
-
-	
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	//SHADERS
